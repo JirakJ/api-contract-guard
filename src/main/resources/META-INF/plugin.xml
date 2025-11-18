@@ -1,7 +1,7 @@
 <idea-plugin>
-    <id>com.kei.plugin</id>
+    <id>com.jakubjirak.plugin</id>
     <name>Kei - API Contract Testing</name>
-    <vendor email="support@kei.dev" url="https://kei.dev">Kei</vendor>
+    <vendor email="jakub@jirak.dev" url="https://jirak.dev">Jakub Jirak</vendor>
     
     <product-descriptor code="PKEIAPICONTRACT" release-date="20251118" release-version="20251" optional="true"/>
 
@@ -37,7 +37,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Contract Index -->
-        <projectService serviceImplementation="com.kei.plugin.core.ContractIndexService"/>
+        <projectService serviceImplementation="com.jakubjirak.plugin.core.ContractIndexService"/>
         
         <!-- File Type Patterns for Contract Discovery -->
         <fileType.fileViewProviderFactory 
@@ -49,10 +49,10 @@
             id="Kei Contracts" 
             anchor="right" 
             icon="/icons/kei.svg"
-            factoryClass="com.kei.plugin.ui.ContractExplorerWindowFactory"/>
+            factoryClass="com.jakubjirak.plugin.ui.ContractExplorerWindowFactory"/>
         
         <!-- Project Startup Activity -->
-        <postStartupActivity implementation="com.kei.plugin.core.ContractDiscoveryStartup"/>
+        <postStartupActivity implementation="com.jakubjirak.plugin.core.ContractDiscoveryStartup"/>
         
         <!-- Inspections -->
         <localInspection 
@@ -61,13 +61,13 @@
             groupName="Kei"
             enabledByDefault="true"
             level="ERROR"
-            implementationClass="com.kei.plugin.validation.inspections.JavaScriptApiInspection"/>
+            implementationClass="com.jakubjirak.plugin.validation.inspections.JavaScriptApiInspection"/>
         
         <!-- Settings -->
         <projectConfigurable 
             parentId="tools"
-            instance="com.kei.plugin.ui.settings.KeiSettingsConfigurable"
-            id="com.kei.plugin.settings"
+            instance="com.jakubjirak.plugin.ui.settings.KeiSettingsConfigurable"
+            id="com.jakubjirak.plugin.settings"
             displayName="Kei API Contract Testing"/>
         
         <!-- Notifications -->
@@ -79,7 +79,7 @@
     <actions>
         <action 
             id="Kei.RefreshContracts"
-            class="com.kei.plugin.ui.actions.RefreshContractsAction"
+            class="com.jakubjirak.plugin.ui.actions.RefreshContractsAction"
             text="Refresh Contracts"
             description="Refresh API contract index"
             icon="AllIcons.Actions.Refresh">
