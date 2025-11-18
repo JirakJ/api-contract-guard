@@ -1,0 +1,89 @@
+<idea-plugin>
+    <id>com.kei.plugin</id>
+    <name>Kei - API Contract Testing</name>
+    <vendor email="support@kei.dev" url="https://kei.dev">Kei</vendor>
+    
+    <product-descriptor code="PKEIAPICONTRACT" release-date="20251118" release-version="20251"/>
+
+    <description><![CDATA[
+        <p><strong>Real-time OpenAPI & GraphQL validation in your IDE</strong></p>
+        <p>Kei helps you catch API contract violations before they reach production.</p>
+        <br/>
+        <p><strong>Features:</strong></p>
+        <ul>
+            <li>✓ Automatic OpenAPI & GraphQL contract discovery</li>
+            <li>✓ Real-time validation as you code</li>
+            <li>✓ Inline warnings for contract violations</li>
+            <li>✓ Smart quick fixes (Alt+Enter)</li>
+            <li>✓ Breaking change detection</li>
+            <li>✓ Contract diff viewer</li>
+            <li>✓ Support for TypeScript, JavaScript, Python, Java, Kotlin</li>
+        </ul>
+        <br/>
+        <p><strong>Getting Started:</strong></p>
+        <ol>
+            <li>Open a project with OpenAPI specs (openapi.yaml, swagger.json)</li>
+            <li>Kei automatically discovers your API contracts</li>
+            <li>Start coding - get instant feedback on API calls</li>
+            <li>Use Alt+Enter for quick fixes</li>
+        </ol>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lang</depends>
+    <depends optional="true" config-file="kei-javascript.xml">JavaScript</depends>
+    <depends optional="true" config-file="kei-python.xml">Pythonid</depends>
+    <depends optional="true" config-file="kei-java.xml">com.intellij.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Contract Index -->
+        <projectService serviceImplementation="com.kei.plugin.core.ContractIndexService"/>
+        
+        <!-- File Type Patterns for Contract Discovery -->
+        <fileType.fileViewProviderFactory 
+            filetype="YAML" 
+            implementationClass="com.intellij.psi.SingleRootFileViewProviderFactory"/>
+        
+        <!-- Tool Window -->
+        <toolWindow 
+            id="Kei Contracts" 
+            anchor="right" 
+            icon="/icons/kei.svg"
+            factoryClass="com.kei.plugin.ui.ContractExplorerWindowFactory"/>
+        
+        <!-- Project Startup Activity -->
+        <postStartupActivity implementation="com.kei.plugin.core.ContractDiscoveryStartup"/>
+        
+        <!-- Inspections -->
+        <localInspection 
+            language="JavaScript"
+            displayName="API Contract Validation"
+            groupName="Kei"
+            enabledByDefault="true"
+            level="ERROR"
+            implementationClass="com.kei.plugin.validation.inspections.JavaScriptApiInspection"/>
+        
+        <!-- Settings -->
+        <projectConfigurable 
+            parentId="tools"
+            instance="com.kei.plugin.ui.settings.KeiSettingsConfigurable"
+            id="com.kei.plugin.settings"
+            displayName="Kei API Contract Testing"/>
+        
+        <!-- Notifications -->
+        <notificationGroup 
+            id="Kei Notifications" 
+            displayType="BALLOON"/>
+    </extensions>
+
+    <actions>
+        <action 
+            id="Kei.RefreshContracts"
+            class="com.kei.plugin.ui.actions.RefreshContractsAction"
+            text="Refresh Contracts"
+            description="Refresh API contract index"
+            icon="AllIcons.Actions.Refresh">
+        </action>
+    </actions>
+
+</idea-plugin>
