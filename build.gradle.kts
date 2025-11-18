@@ -43,6 +43,7 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("232")
+        untilBuild.set("")
         
         pluginDescription.set("""
             <p><strong>Kei – API Contract Testing</strong></p>
