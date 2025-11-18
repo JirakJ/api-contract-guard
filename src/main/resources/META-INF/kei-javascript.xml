@@ -6,6 +6,6 @@
             groupName="Kei"
             enabledByDefault="true"
             level="ERROR"
-            implementationClass="com.kei.plugin.validation.inspections.JavaScriptApiInspection"/>
+            implementationClass="com.jakubjirak.plugin.validation.inspections.JavaScriptApiInspection"/>
     </extensions>
 </idea-plugin>
