@@ -1,0 +1,11 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <localInspection 
+            language="JavaScript"
+            displayName="API Contract Validation"
+            groupName="Kei"
+            enabledByDefault="true"
+            level="ERROR"
+            implementationClass="com.kei.plugin.validation.inspections.JavaScriptApiInspection"/>
+    </extensions>
+</idea-plugin>
