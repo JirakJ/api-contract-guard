@@ -6,28 +6,35 @@
     <product-descriptor code="PKEIAPICONTRACT" release-date="20260215" release-version="20262" optional="true"/>
 
     <description><![CDATA[
-        <p><strong>Real-time OpenAPI & GraphQL validation in your IDE</strong></p>
-        <p>Kei helps you catch API contract violations before they reach production.</p>
-        <br/>
-        <p><strong>Features:</strong></p>
-        <ul>
-            <li>✓ Automatic OpenAPI & GraphQL contract discovery</li>
-            <li>✓ Real-time validation as you code</li>
-            <li>✓ Inline warnings for contract violations</li>
-            <li>✓ Smart quick fixes (Alt+Enter)</li>
-            <li>✓ Breaking change detection</li>
-            <li>✓ Contract diff viewer</li>
-            <li>✓ Support for TypeScript, JavaScript, Python, Java, Kotlin</li>
-        </ul>
-        <br/>
-        <p><strong>Getting Started:</strong></p>
-        <ol>
-            <li>Open a project with OpenAPI specs (openapi.yaml, swagger.json)</li>
-            <li>Kei automatically discovers your API contracts</li>
-            <li>Start coding - get instant feedback on API calls</li>
-            <li>Use Alt+Enter for quick fixes</li>
-        </ol>
-    ]]></description>
+<h2>Kei — API Contract Testing</h2>
+<p>
+  Stop shipping breaking API changes. Kei validates your code against OpenAPI and GraphQL contracts in
+  real time, catching mismatches between your implementation and your API specification before they cause
+  production incidents.
+</p>
+
+<h2>Key Features</h2>
+<ul>
+  <li><b>Real-Time Validation</b> — Inline warnings when code diverges from your API contract</li>
+  <li><b>OpenAPI &amp; GraphQL</b> — Supports OpenAPI 3.x specifications and GraphQL schemas</li>
+  <li><b>Breaking Change Detection</b> — Highlights backward-incompatible changes with severity levels</li>
+  <li><b>Multi-Language Support</b> — Works with TypeScript, JavaScript, Python, Java, and Kotlin</li>
+  <li><b>Contract Diff Viewer</b> — Side-by-side comparison of contract versions</li>
+  <li><b>Smart Quick Fixes</b> — Auto-generate code stubs and fix type mismatches</li>
+</ul>
+
+<h2>Why Kei?</h2>
+<p>
+  API contract violations are one of the top causes of integration failures. Kei shifts contract testing
+  left — validating contracts at development time instead of in staging or production.
+</p>
+
+<h2>Free vs Pro</h2>
+<ul>
+  <li><b>Free:</b> Basic OpenAPI validation, inline warnings, contract discovery</li>
+  <li><b>Pro:</b> GraphQL support, breaking change analysis, contract diff viewer, team contract registry, CI/CD hooks, and mock server generation</li>
+</ul>
+]]></description>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
