@@ -3,7 +3,7 @@
     <name>Kei - API Contract Testing</name>
     <vendor email="support@kei.dev" url="https://kei.dev">Kei</vendor>
     
-    <product-descriptor code="PKEIAPICONTRACT" release-date="20260215" release-version="20262"/>
+    <product-descriptor code="PKEIAPICONTRACT" release-date="20260215" release-version="20262" optional="true"/>
 
     <description><![CDATA[
         <p><strong>Real-time OpenAPI & GraphQL validation in your IDE</strong></p>
