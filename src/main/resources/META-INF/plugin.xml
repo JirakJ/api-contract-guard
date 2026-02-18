@@ -6,35 +6,90 @@
     <product-descriptor code="PKEIAPICONTRACT" release-date="20260215" release-version="20262" optional="true"/>
 
     <description><![CDATA[
-<h2>Kei — API Contract Testing</h2>
+<h2>Real-Time API Contract Testing in Your IDE</h2>
+
 <p>
-  Stop shipping breaking API changes. Kei validates your code against OpenAPI and GraphQL contracts in
-  real time, catching mismatches between your implementation and your API specification before they cause
-  production incidents.
+  Kei validates your API calls against OpenAPI and GraphQL contracts as you type.
+  Breaking changes show up as inline warnings — not as production incidents.
+  Works with TypeScript, JavaScript, Python, Java, and Kotlin.
 </p>
 
-<h2>Key Features</h2>
+<h3>Contract Discovery</h3>
 <ul>
-  <li><b>Real-Time Validation</b> — Inline warnings when code diverges from your API contract</li>
-  <li><b>OpenAPI &amp; GraphQL</b> — Supports OpenAPI 3.x specifications and GraphQL schemas</li>
-  <li><b>Breaking Change Detection</b> — Highlights backward-incompatible changes with severity levels</li>
-  <li><b>Multi-Language Support</b> — Works with TypeScript, JavaScript, Python, Java, and Kotlin</li>
-  <li><b>Contract Diff Viewer</b> — Side-by-side comparison of contract versions</li>
-  <li><b>Smart Quick Fixes</b> — Auto-generate code stubs and fix type mismatches</li>
+  <li>Automatic detection of OpenAPI (v2/v3) and GraphQL schemas</li>
+  <li>Supports local files, remote URLs, and schema registries</li>
+  <li>Contract Explorer panel with a tree view of all endpoints and types</li>
 </ul>
 
-<h2>Why Kei?</h2>
-<p>
-  API contract violations are one of the top causes of integration failures. Kei shifts contract testing
-  left — validating contracts at development time instead of in staging or production.
-</p>
-
-<h2>Free vs Pro</h2>
+<h3>Real-Time Validation</h3>
 <ul>
-  <li><b>Free:</b> Basic OpenAPI validation, inline warnings, contract discovery</li>
-  <li><b>Pro:</b> GraphQL support, breaking change analysis, contract diff viewer, team contract registry, CI/CD hooks, and mock server generation</li>
+  <li>Validates every API call against its contract in under 50ms</li>
+  <li>Inline red underlines for contract violations — just like compiler errors</li>
+  <li>Breaking change detection with severity levels (critical, warning, info)</li>
+  <li>Side-by-side contract diff viewer for comparing schema versions</li>
 </ul>
-]]></description>
+
+<h3>Quick Fixes and Refactoring</h3>
+<ul>
+  <li>Press Alt+Enter on any violation for smart fix suggestions</li>
+  <li>Auto-rename fields, update types, and add missing parameters</li>
+  <li>One-click mock server generation from any contract</li>
+</ul>
+
+<h3>Pro Features</h3>
+<ul>
+  <li>Analytics dashboard — track contract health and violation trends</li>
+  <li>Version management — pin, compare, and roll back contract versions</li>
+  <li>Advanced mocking — custom rules, delays, and error simulation</li>
+  <li>Test generation — auto-generate contract tests from schemas</li>
+</ul>
+
+<h3>Team / Enterprise Features</h3>
+<ul>
+  <li>Security analyzer for API contract patterns</li>
+  <li>AI-powered contract suggestions and improvements</li>
+  <li>Team collaboration with shared registries and review workflows</li>
+  <li>CI/CD integration for pipeline-level contract validation</li>
+</ul>
+
+<h3>Pricing</h3>
+<table>
+  <tr>
+    <th>Free</th>
+    <th>Pro</th>
+    <th>Team / Enterprise</th>
+  </tr>
+  <tr>
+    <td>
+      Contract discovery, real-time validation, inline warnings,
+      quick fixes, contract explorer, breaking change detection,
+      mock server
+    </td>
+    <td>
+      Everything in Free plus analytics dashboard, version management,
+      advanced mocking, and test generation — $9/month per user
+    </td>
+    <td>
+      Everything in Pro plus security analyzer, AI features,
+      team collaboration, and CI/CD integration — contact us
+    </td>
+  </tr>
+</table>
+
+<h3>Requirements</h3>
+<ul>
+  <li>JDK 17 or later</li>
+  <li>IntelliJ IDEA 2023.1+ (or compatible JetBrains IDE)</li>
+</ul>
+
+<h3>Support</h3>
+<ul>
+  <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Documentation</a></li>
+  <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Issue Tracker (GitHub)</a></li>
+  <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Community Forum</a></li>
+  <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Email Support (Pro and Team)</a></li>
+</ul>
+    ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -92,5 +147,20 @@
             icon="AllIcons.Actions.Refresh">
         </action>
     </actions>
+
+    <change-notes><![CDATA[
+        <h3>What's New</h3>
+        <ul>
+            <li><b>Automatic Contract Discovery</b> - Detects OpenAPI and GraphQL specs in your project automatically</li>
+            <li><b>Real-Time Validation</b> - Inline warnings when code diverges from your API contract in under 50ms</li>
+            <li><b>Breaking Change Detection</b> - Highlights backward-incompatible API changes with severity levels</li>
+            <li><b>Smart Quick Fixes</b> - Auto-generate code stubs and fix type mismatches with Alt+Enter</li>
+            <li><b>Contract Explorer</b> - Tree view of all API contracts with endpoints and schema details</li>
+            <li><b>Contract Diff Viewer</b> - Side-by-side comparison of contract versions to track changes</li>
+            <li><b>Multi-Language Support</b> - Works with TypeScript, JavaScript, Python, Java, and Kotlin</li>
+            <li><b>Mock Server Generation</b> - One-click mock server from your API contracts</li>
+            <li><b>Test Generation</b> - Auto-generate test suites from contract definitions (Pro)</li>
+        </ul>
+    ]]></change-notes>
 
 </idea-plugin>
