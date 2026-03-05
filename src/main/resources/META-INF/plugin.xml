@@ -3,7 +3,7 @@
     <name>Kei - API Contract Testing</name>
     <vendor email="support@kei.dev" url="https://kei.dev">Kei</vendor>
     
-    <product-descriptor code="PKEIAPICONTRACT" release-date="20260215" release-version="20262" optional="true"/>
+    <product-descriptor code="PKEIAPICONTRACT" release-date="20260305" release-version="20263" optional="true"/>
 
     <description><![CDATA[<h2>Real-Time API Contract Testing in Your IDE</h2>
 
@@ -122,20 +122,5 @@
             icon="AllIcons.Actions.Refresh">
         </action>
     </actions>
-
-    <change-notes><![CDATA[
-        <h3>What's New</h3>
-        <ul>
-            <li><b>Automatic Contract Discovery</b> - Detects OpenAPI and GraphQL specs in your project automatically</li>
-            <li><b>Real-Time Validation</b> - Inline warnings when code diverges from your API contract in under 50ms</li>
-            <li><b>Breaking Change Detection</b> - Highlights backward-incompatible API changes with severity levels</li>
-            <li><b>Smart Quick Fixes</b> - Auto-generate code stubs and fix type mismatches with Alt+Enter</li>
-            <li><b>Contract Explorer</b> - Tree view of all API contracts with endpoints and schema details</li>
-            <li><b>Contract Diff Viewer</b> - Side-by-side comparison of contract versions to track changes</li>
-            <li><b>Multi-Language Support</b> - Works with TypeScript, JavaScript, Python, Java, and Kotlin</li>
-            <li><b>Mock Server Generation</b> - One-click mock server from your API contracts</li>
-            <li><b>Test Generation</b> - Auto-generate test suites from contract definitions (Pro)</li>
-        </ul>
-    ]]></change-notes>
 
 </idea-plugin>
