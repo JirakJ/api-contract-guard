@@ -5,8 +5,7 @@
     
     <product-descriptor code="PKEIAPICONTRACT" release-date="20260215" release-version="20262" optional="true"/>
 
-    <description><![CDATA[
-<h2>Real-Time API Contract Testing in Your IDE</h2>
+    <description><![CDATA[<h2>Real-Time API Contract Testing in Your IDE</h2>
 
 <p>
   Kei validates your API calls against OpenAPI and GraphQL contracts as you type.
@@ -36,7 +35,6 @@
   <li>One-click mock server generation from any contract</li>
 </ul>
 
-<h3>Pro Features</h3>
 <ul>
   <li>Analytics dashboard — track contract health and violation trends</li>
   <li>Version management — pin, compare, and roll back contract versions</li>
@@ -44,37 +42,12 @@
   <li>Test generation — auto-generate contract tests from schemas</li>
 </ul>
 
-<h3>Team / Enterprise Features</h3>
 <ul>
   <li>Security analyzer for API contract patterns</li>
   <li>AI-powered contract suggestions and improvements</li>
   <li>Team collaboration with shared registries and review workflows</li>
   <li>CI/CD integration for pipeline-level contract validation</li>
 </ul>
-
-<h3>Pricing</h3>
-<table>
-  <tr>
-    <th>Free</th>
-    <th>Pro</th>
-    <th>Team / Enterprise</th>
-  </tr>
-  <tr>
-    <td>
-      Contract discovery, real-time validation, inline warnings,
-      quick fixes, contract explorer, breaking change detection,
-      mock server
-    </td>
-    <td>
-      Everything in Free plus analytics dashboard, version management,
-      advanced mocking, and test generation — $9/month per user
-    </td>
-    <td>
-      Everything in Pro plus security analyzer, AI features,
-      team collaboration, and CI/CD integration — contact us
-    </td>
-  </tr>
-</table>
 
 <h3>Requirements</h3>
 <ul>
@@ -88,8 +61,7 @@
   <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Issue Tracker (GitHub)</a></li>
   <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Community Forum</a></li>
   <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Email Support (Pro and Team)</a></li>
-</ul>
-    ]]></description>
+</ul>]]></description>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -136,6 +108,9 @@
         <notificationGroup 
             id="Kei Notifications" 
             displayType="BALLOON"/>
+    
+        <notificationGroup id="Kei - API Contract Testing Feedback" displayType="BALLOON"/>
+        <projectActivity implementation="com.kei.plugin.feedback.FeedbackNotifier"/>
     </extensions>
 
     <actions>
