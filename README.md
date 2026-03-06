@@ -30,20 +30,16 @@
 
 ## ✨ Key Features
 
-### 🆓 FREE Edition
+### ✨ Features
 - ✅ **Contract Discovery** (OpenAPI, GraphQL)
 - ✅ **Real-Time Validation** (<50ms, 5+ languages)
 - ✅ **Quick Fixes** (Alt+Enter auto-refactoring)
 - ✅ **Diff Viewer** (Breaking changes highlighted)
 - ✅ **Mock Server** (One-click generation)
-
-### 💎 PRO Edition
 - ✅ **Analytics Dashboard** (Usage, performance, health)
 - ✅ **Version Management** (Compatibility, migrations)
 - ✅ **Advanced Mocking** (Custom scenarios)
 - ✅ **Test Generation** (Auto-generate test suites)
-
-### 🏢 TEAM/ENTERPRISE
 - ✅ **Security Analyzer** (OWASP checks)
 - ✅ **AI Features** (Contract generation)
 - ✅ **Team Collaboration** (Shared contracts)
@@ -103,7 +99,6 @@ requests.post('/api/users', json={
 | IDE Native | ✅ | ❌ | ❌ |
 | Real-time | ✅ <50ms | ❌ | ❌ |
 | Analytics | ✅ | ⚠️ | ❌ |
-| Free Tier | ✅ Generous | ⚠️ | ⚠️ |
 
 ---
 
@@ -172,7 +167,7 @@ MIT License - see [LICENSE](LICENSE)
 
 ## Features
 
-### ✓ Free Tier
+### Features
 - **Automatic Contract Discovery**: Finds OpenAPI & GraphQL specs in your project
 - **Real-time Validation**: Get instant feedback as you code (TypeScript/JavaScript)
 - **Inline Warnings**: Red underlines for contract violations

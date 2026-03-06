@@ -3,7 +3,6 @@ package com.kei.plugin.diff
 import com.kei.plugin.models.*
 
 /**
- * PREMIUM FEATURE: Contract Diff Analyzer
  * Detects breaking and non-breaking changes between contract versions
  */
 class ContractDiffAnalyzer {

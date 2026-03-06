@@ -5,7 +5,6 @@ import com.jakubjirak.plugin.models.Endpoint
 import com.jakubjirak.plugin.models.Schema
 
 /**
- * PREMIUM FEATURE: Documentation Generator
  * Generates beautiful API documentation in multiple formats
  */
 class DocumentationGenerator {

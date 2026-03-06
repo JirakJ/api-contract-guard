@@ -4,7 +4,6 @@ import com.kei.plugin.models.ApiContract
 import com.kei.plugin.models.Endpoint
 
 /**
- * PREMIUM FEATURE: Performance Test Generator
  * Generates load testing scripts (K6, Gatling, JMeter)
  */
 class PerformanceTestGenerator {
@@ -74,7 +73,6 @@ class PerformanceTestGenerator {
 }
 
 /**
- * PREMIUM FEATURE: Performance Analyzer
  */
 class PerformanceBenchmarkAnalyzer {
     
