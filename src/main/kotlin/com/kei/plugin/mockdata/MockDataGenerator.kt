@@ -4,7 +4,6 @@ import com.kei.plugin.models.Schema
 import kotlin.random.Random
 
 /**
- * PREMIUM FEATURE: Mock Data Generator
  * Generates realistic mock data based on JSON Schema
  */
 class MockDataGenerator {

@@ -3,7 +3,6 @@ package com.kei.plugin.cicd
 import com.kei.plugin.models.ApiContract
 
 /**
- * PREMIUM FEATURE: CI/CD Integration Generator
  * Generates pipeline configurations for contract validation
  */
 class CICDGenerator {
@@ -43,7 +42,6 @@ contract-validation:
 }
 
 /**
- * PREMIUM FEATURE: Git Hook Generator
  */
 class GitHookGenerator {
     

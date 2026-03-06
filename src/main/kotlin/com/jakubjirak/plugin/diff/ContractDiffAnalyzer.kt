@@ -3,7 +3,6 @@ package com.jakubjirak.plugin.diff
 import com.jakubjirak.plugin.models.*
 
 /**
- * PREMIUM FEATURE: Contract Diff Analyzer
  * Detects breaking and non-breaking changes between contract versions
  */
 class ContractDiffAnalyzer {

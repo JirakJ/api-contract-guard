@@ -3,8 +3,6 @@
     <name>Kei - API Contract Testing</name>
     <vendor email="support@kei.dev" url="https://kei.dev">Kei</vendor>
     
-    <product-descriptor code="PKEIAPICONTRACT" release-date="20260305" release-version="20263" optional="true"/>
-
     <description><![CDATA[<h2>Real-Time API Contract Testing in Your IDE</h2>
 
 <p>
@@ -60,7 +58,7 @@
   <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Documentation</a></li>
   <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Issue Tracker (GitHub)</a></li>
   <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Community Forum</a></li>
-  <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Email Support (Pro and Team)</a></li>
+  <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Email Support</a></li>
 </ul>]]></description>
 
     <depends>com.intellij.modules.platform</depends>

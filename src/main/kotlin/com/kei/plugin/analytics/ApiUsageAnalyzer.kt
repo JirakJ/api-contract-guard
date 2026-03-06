@@ -8,7 +8,6 @@ import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * PREMIUM FEATURE: API Usage Analyzer
  */
 @Service(Service.Level.PROJECT)
 class ApiUsageAnalyzer(private val project: Project) {

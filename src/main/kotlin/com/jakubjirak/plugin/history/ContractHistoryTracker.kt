@@ -11,7 +11,6 @@ import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * PREMIUM FEATURE: Contract History Tracker  
  * Tracks contract changes over time
  */
 @Service(Service.Level.PROJECT)

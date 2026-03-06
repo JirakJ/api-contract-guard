@@ -3,7 +3,6 @@ package com.jakubjirak.plugin.generator
 import com.jakubjirak.plugin.models.*
 
 /**
- * PREMIUM FEATURE: Client Code Generator
  * Generates typed API clients from OpenAPI contracts
  */
 class ClientCodeGenerator {

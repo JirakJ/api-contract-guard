@@ -5,7 +5,6 @@ import com.jakubjirak.plugin.models.Endpoint
 import com.jakubjirak.plugin.models.HttpMethod
 
 /**
- * PREMIUM FEATURE: Security Analyzer
  * Analyzes API contracts for security vulnerabilities and best practices
  */
 class SecurityAnalyzer {

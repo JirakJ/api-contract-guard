@@ -3,7 +3,6 @@ package com.kei.plugin.generator
 import com.kei.plugin.models.*
 
 /**
- * PREMIUM FEATURE: Client Code Generator
  * Generates typed API clients from OpenAPI contracts
  */
 class ClientCodeGenerator {
