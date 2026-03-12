@@ -73,6 +73,10 @@ tasks {
         """.trimIndent())
     }
 
+    runPluginVerifier {
+        ideVersions.set(listOf("IU-2023.2.8", "IU-2024.3", "IU-2025.1.3"))
+    }
+
     signPlugin {
         certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
         privateKey.set(System.getenv("PRIVATE_KEY"))
