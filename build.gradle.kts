@@ -59,6 +59,10 @@ tasks {
         """.trimIndent())
         
         changeNotes.set("""
+            <h3>2026.3.15</h3>
+            <ul>
+                <li>Quick fixes now create PSI via the public PsiFileFactory API instead of internal JavaScript plugin classes</li>
+            </ul>
             <h3>2025.11.1</h3>
             <ul>
                 <li>🚀 Initial release of Kei - API Contract Testing</li>

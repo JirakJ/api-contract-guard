@@ -4,9 +4,9 @@ import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.lang.javascript.psi.JSObjectLiteralExpression
 import com.intellij.lang.javascript.psi.JSProperty
-import com.intellij.lang.javascript.psi.impl.JSPsiElementFactory
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFileFactory
 
 class AddMissingFieldFix(
     private val fieldName: String,
@@ -22,10 +22,12 @@ class AddMissingFieldFix(
         
         val defaultValue = getDefaultValue(fieldType)
         
-        // Create new property using JSPsiElementFactory
+        // Create new property in a dummy file via the public PSI factory
         try {
-            val propertyText = "$fieldName: $defaultValue"
-            val newProperty = JSPsiElementFactory.createJSExpression(propertyText, element.containingFile) as? JSProperty
+            val dummyText = "let obj = { $fieldName: $defaultValue }"
+            val dummyFile = PsiFileFactory.getInstance(project)
+                .createFileFromText("dummy.js", element.containingFile.language, dummyText)
+            val newProperty = findProperty(dummyFile, fieldName)
             
             if (newProperty != null) {
                 // Add to existing object
