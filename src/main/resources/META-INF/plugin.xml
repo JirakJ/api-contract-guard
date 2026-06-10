@@ -2,7 +2,7 @@
     <id>com.jakubjirak.plugin</id>
     <name>Kei - API Contract Testing</name>
     <vendor email="support@kei.dev" url="https://kei.dev">Kei</vendor>
-    <product-descriptor code="PAPICONTRACTGUA" release-date="20260417" release-version="20263" optional="true"/>
+    <product-descriptor code="PKEIAPICONTRACT" release-date="20260417" release-version="20263" optional="true"/>
 
     
     <description><![CDATA[<h2>Real-Time API Contract Testing in Your IDE</h2>
