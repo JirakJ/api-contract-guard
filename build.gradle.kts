@@ -59,6 +59,11 @@ tasks {
         """.trimIndent())
         
         changeNotes.set("""
+            <h3>2026.8.0</h3>
+            <ul>
+                <li>The plugin is now completely free — all features unlocked, no license needed.</li>
+                <li>Source code is now open source under Apache-2.0: https://github.com/JirakJ/api-contract-guard</li>
+            </ul>
             <h3>2026.3.15</h3>
             <ul>
                 <li>Quick fixes now create PSI via the public PsiFileFactory API instead of internal JavaScript plugin classes</li>

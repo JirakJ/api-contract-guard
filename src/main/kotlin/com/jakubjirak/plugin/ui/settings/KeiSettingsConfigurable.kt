@@ -46,7 +46,7 @@ class KeiSettingsConfigurable : Configurable {
             
             group("Features") {
                 row {
-                    label("Free tier includes:")
+                    label("Features (free & open source):")
                 }
                 row {
                     label("✓ OpenAPI 3.x contract discovery")

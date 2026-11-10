@@ -3,8 +3,8 @@
 > **"Stop breaking APIs. Start shipping faster."**
 
 [![JetBrains Plugin](https://img.shields.io/badge/JetBrains-Plugin-orange.svg)](https://plugins.jetbrains.com/)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/jirakj/api-contract-guard)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-2026.8.0-blue.svg)](https://github.com/jirakj/api-contract-guard)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
 **Kei** is a powerful IntelliJ IDEA plugin that brings **real-time API contract testing** directly into your IDE. Catch breaking changes **while you code**, not in production.
 
@@ -157,7 +157,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE)
+Apache License 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
 ---
 
@@ -286,14 +286,22 @@ fetch('/api/users', {
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/kei-plugin/issues)
+- **Issues**: [GitHub Issues](https://github.com/JirakJ/api-contract-guard/issues)
 - **Documentation**: [docs.kei.dev](https://docs.kei.dev)
 - **Email**: support@kei.dev
 
 ## License
 
-Copyright © 2024 Kei. All rights reserved.
+Apache License 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE). Copyright 2026 Jakub Jirák.
 
 ---
 
 Made with ❤️ for API developers
+
+## Free & open source
+
+Since version 2026.8.0 the plugin is completely free — every feature is unlocked and no license is needed. The source code is open source under the [Apache License 2.0](LICENSE).
+
+## Contributing
+
+Issues and pull requests are welcome at https://github.com/JirakJ/api-contract-guard.
