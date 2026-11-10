@@ -47,67 +47,26 @@ Stop shipping breaking API changes. Validate your code against OpenAPI & GraphQL
 - Type mismatch correction
 - Contract Explorer tool window for browsing APIs
 
-**📊 Contract Diff Viewer (Pro)**
+**📊 Contract Diff Viewer**
 - Side-by-side comparison of contract changes
 - Breaking vs. non-breaking classification
 - Impact analysis ("X files will break")
 - Severity levels: Critical, High, Medium, Low
 
-**🖥️ Mock Server Generator (Pro)**
+**🖥️ Mock Server Generator**
 - Embedded Ktor mock server
 - Realistic fake data generation
 - Custom mock scenarios
 - Request/response logging
 
-**🔗 Version Control Integration (Pro)**
+**🔗 Version Control Integration**
 - Pre-commit hooks with breaking change warnings
 - Git history integration
 - Branch comparison for contract drift
 
-#### 💎 Pricing Model
+#### 💎 Pricing
 
-**FREE (Community):**
-- Auto-discovery of OpenAPI, Swagger, and GraphQL contracts
-- Real-time validation for 1 language per project
-- Up to 3 API contracts per project
-- Inline error underlines and quick-fixes
-- Contract Explorer tool window
-- Basic validation rules
-
-**PRO (Subscription):**
-- Unlimited API contracts
-- Multi-language support (TypeScript, JavaScript, Python, Java, Kotlin, Go)
-- Advanced validation rules (format constraints, enums, patterns)
-- Response schema and header validation
-- Contract Diff Viewer with breaking change analysis
-- Mock Server Generator with custom scenarios
-- Auto client generation (TypeScript, Python)
-- Automated test generation (JUnit, TestNG, Pytest, Jest)
-- Consumer-driven contract testing (Pact-style)
-- Multi-service dependency graph visualization
-- API usage analytics dashboard
-
-**ENTERPRISE (Custom pricing):**
-- Everything in Pro
-- Team collaboration — shared mock servers, team annotations, collaborative reviews
-- API Security Analyzer (OWASP Top 10 checks)
-- Performance contract testing with SLA monitoring
-- K6 and Gatling test generation
-- AI-powered contract generation from code
-- Multi-protocol support: gRPC, SOAP, AsyncAPI (WebSocket, Kafka, MQTT)
-- CI/CD integration (GitHub Actions, GitLab CI, Jenkins)
-- Auto-generated documentation (Markdown, HTML)
-- Custom dashboards and CSV/PDF export
-- SSO (SAML, OAuth), audit logs, role-based access control
-- Priority 24h support with dedicated engineer
-- On-premise deployment option
-
-**Special Programs:**
-- 🎓 50% student discount (`.edu` email required)
-- 🌐 Free Premium for verified open-source maintainers
-- 30-day free Premium trial (no credit card required)
-- 14-day Enterprise trial with support
-- Full refund within 30 days
+Free & open source (Apache-2.0) — every feature is available to everyone, no license needed.
 
 #### 🎓 Perfect For
 
@@ -139,9 +98,9 @@ Stop shipping breaking API changes. Validate your code against OpenAPI & GraphQL
 1. **Real-time validation** — Editor showing inline contract violation underlines in a TypeScript file
 2. **Quick-fix menu** — Alt+Enter popup with contract fix suggestions (add missing field, fix type)
 3. **Contract Explorer** — Tool window listing discovered API contracts and endpoints
-4. **Diff Viewer (Pro)** — Side-by-side contract diff with breaking changes highlighted in red
-5. **Mock Server (Pro)** — Running mock server with generated endpoints and fake data
-6. **Dependency graph (Pro)** — Multi-service API dependency visualization
+4. **Diff Viewer** — Side-by-side contract diff with breaking changes highlighted in red
+5. **Mock Server** — Running mock server with generated endpoints and fake data
+6. **Dependency graph** — Multi-service API dependency visualization
 7. **Settings panel** — Kei configuration showing contract paths and validation options
 8. **Auto-discovery** — Notification showing detected OpenAPI/GraphQL contracts on project open
 
@@ -191,7 +150,6 @@ api contract, openapi, swagger, graphql, contract testing, breaking changes, api
 - [ ] Screenshots (minimum 5) captured and uploaded
 - [ ] Short description within 255-character limit
 - [ ] Full description formatted with HTML for marketplace rendering
-- [ ] Pricing tiers configured in JetBrains Marketplace portal
 - [ ] Product code `PKEIAPICONTRACT` registered
 - [ ] Vendor profile completed (name, email, website)
 - [ ] Support channels documented and active
