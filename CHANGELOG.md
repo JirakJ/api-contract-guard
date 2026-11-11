@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2026.9.0] - 2026-11-11
+
 ### Fixed
 - Calls to concrete URLs (`/users/42`, absolute URLs, URLs with query strings) now match templated contract paths (`/users/{id}`); previously only the literal template text matched.
 - Swagger 2.0 contracts are now parsed (only OpenAPI 3 worked) and local `$ref` request schemas are resolved.
