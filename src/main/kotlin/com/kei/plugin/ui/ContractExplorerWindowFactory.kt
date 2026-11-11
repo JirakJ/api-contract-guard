@@ -1,5 +1,6 @@
 package com.kei.plugin.ui
 
+import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
@@ -13,7 +14,7 @@ import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeModel
 import java.awt.BorderLayout
 
-class ContractExplorerWindowFactory : ToolWindowFactory {
+class ContractExplorerWindowFactory : ToolWindowFactory, DumbAware {
     
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val explorerPanel = ContractExplorerPanel(project)
@@ -45,7 +46,7 @@ class ContractExplorerPanel(private val project: Project) : JPanel(BorderLayout(
     fun refreshContracts() {
         rootNode.removeAllChildren()
         
-        val service = project.getService(ContractIndexService::class.java)
+        val service = ContractIndexService.getInstance(project)
         val contracts = service.getAllContracts()
         
         contracts.forEach { contract ->
@@ -60,7 +61,7 @@ class ContractExplorerPanel(private val project: Project) : JPanel(BorderLayout(
     
     private fun addContractNode(contract: ApiContract) {
         val contractNode = DefaultMutableTreeNode(
-            "${contract.file.name} (${contract.type})"
+            "${contract.fileName}${contract.title?.let { " — $it" } ?: ""}"
         )
         
         // Add endpoints
@@ -95,8 +96,9 @@ class ContractExplorerPanel(private val project: Project) : JPanel(BorderLayout(
     }
     
     private fun addSchemaNode(parent: DefaultMutableTreeNode, schema: com.kei.plugin.models.Schema) {
-        if (schema.type == "object" && schema.properties != null) {
-            schema.properties.forEach { (name, propSchema) ->
+        val properties = schema.properties
+        if (schema.type == "object" && properties != null) {
+            properties.forEach { (name, propSchema) ->
                 val required = schema.required?.contains(name) == true
                 val requiredMark = if (required) " *" else ""
                 val propNode = DefaultMutableTreeNode("$name: ${propSchema.type}$requiredMark")

@@ -1,307 +1,52 @@
-# 🛡️ Kei - API Contract Testing for IntelliJ IDEA
+# Kei - API Contract Testing
 
-> **"Stop breaking APIs. Start shipping faster."**
-
-[![JetBrains Plugin](https://img.shields.io/badge/JetBrains-Plugin-orange.svg)](https://plugins.jetbrains.com/)
-[![Version](https://img.shields.io/badge/version-2026.8.0-blue.svg)](https://github.com/jirakj/api-contract-guard)
+[![Plugin Verification](https://github.com/JirakJ/api-contract-guard/actions/workflows/verify.yml/badge.svg)](https://github.com/JirakJ/api-contract-guard/actions/workflows/verify.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
-**Kei** is a powerful IntelliJ IDEA plugin that brings **real-time API contract testing** directly into your IDE. Catch breaking changes **while you code**, not in production.
-
----
-
-## ⚡ Quick Start (60 seconds)
-
-### Install
-1. Open IntelliJ IDEA / WebStorm / PyCharm
-2. `Settings` → `Plugins` → `Marketplace`
-3. Search **"Kei"**
-4. Click `Install` → Restart
-
-### Use
-1. Open project with OpenAPI/GraphQL
-2. Plugin **auto-discovers** contracts
-3. Write API code → See **real-time warnings**
-4. **Alt+Enter** → Fix instantly
-
-**Zero configuration required!** 🎉
-
----
-
-## ✨ Key Features
-
-### ✨ Features
-- ✅ **Contract Discovery** (OpenAPI, GraphQL)
-- ✅ **Real-Time Validation** (<50ms, 5+ languages)
-- ✅ **Quick Fixes** (Alt+Enter auto-refactoring)
-- ✅ **Diff Viewer** (Breaking changes highlighted)
-- ✅ **Mock Server** (One-click generation)
-- ✅ **Analytics Dashboard** (Usage, performance, health)
-- ✅ **Version Management** (Compatibility, migrations)
-- ✅ **Advanced Mocking** (Custom scenarios)
-- ✅ **Test Generation** (Auto-generate test suites)
-- ✅ **Security Analyzer** (OWASP checks)
-- ✅ **AI Features** (Contract generation)
-- ✅ **Team Collaboration** (Shared contracts)
-- ✅ **CI/CD Integration** (GitHub Actions, Jenkins)
-
-[See all features →](ULTIMATE_FEATURE_SUMMARY.md)
-
----
-
-## 🎯 Why Kei?
-
-| Problem | Solution |
-|---------|----------|
-| 💥 Breaking APIs | ✅ Catch while coding |
-| ⏰ Slow feedback (2-3 days) | ✅ Instant (<50ms) |
-| 📄 Outdated docs | ✅ Auto-generated |
-| 🐛 Late discovery | ✅ Pre-commit checks |
-
-**vs Postman/Stoplight**: Native IDE integration, 10x faster feedback  
-**vs Pact**: Zero config, better UX, analytics included
-
----
-
-## 🚀 Examples
-
-### TypeScript
-```typescript
-// ❌ Missing required field
-fetch('/api/users', {
-    method: 'POST',
-    body: JSON.stringify({ name: 'John' }) // RED UNDERLINE
-})
-
-// ✅ Alt+Enter → "Add missing field 'userId'"
-{ name: 'John', userId: '' } // FIXED
-```
-
-### Python
-```python
-# ❌ Type mismatch
-requests.post('/api/users', json={
-    'age': '30'  # string instead of int
-})
-
-# ✅ Alt+Enter → "Convert to integer"
-'age': 30  # FIXED
-```
-
-[More examples →](QUICKSTART.md)
-
----
-
-## 📊 Comparison
-
-| Feature | Kei | Postman | Stoplight |
-|---------|-----|---------|-----------|
-| IDE Native | ✅ | ❌ | ❌ |
-| Real-time | ✅ <50ms | ❌ | ❌ |
-| Analytics | ✅ | ⚠️ | ❌ |
-
----
-
-## 📚 Documentation
-
-- **[Quick Start](QUICKSTART.md)** - 5 min tutorial
-- **[Features](ULTIMATE_FEATURE_SUMMARY.md)** - Complete overview
-- **[Dev Guide](DEV_GUIDE.md)** - Build & contribute
-- **[Roadmap](NEXT_FEATURES_CHECKLIST.md)** - Upcoming features
-
----
-
-## 🛠️ Development
-
-```bash
-# Build
-./gradlew build
-
-# Run
-./gradlew runIde
-
-# Test
-./gradlew test
-```
-
-**Prerequisites**: JDK 17+, IntelliJ IDEA 2023.1+
-
----
-
-## 📈 Stats
-
-```
-✅ 39 Kotlin files
-✅ 3,835+ lines of code
-✅ 27 documentation files
-✅ 8/8 core features complete
-✅ <50ms validation time
-✅ 5 languages supported
-```
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md)
-
----
-
-## 📞 Support
-
-- **Issues**: [github.com/jirakj/api-contract-guard/issues](https://github.com/jirakj/api-contract-guard/issues)
-- **Discord**: [discord.gg/kei-plugin](https://discord.gg/kei-plugin)
-- **Email**: support@kei-plugin.dev
-
----
-
-## 📄 License
-
-Apache License 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
-
----
-
-**Made with ❤️ for the API testing community**
-
-**⭐ [Star on GitHub](https://github.com/jirakj/api-contract-guard)** | **🐛 [Report Issues](https://github.com/jirakj/api-contract-guard/issues)** | **💡 [Request Features](https://github.com/jirakj/api-contract-guard/discussions)**
+IntelliJ Platform plugin that finds the OpenAPI 3.x / Swagger 2.0 contracts in a project and checks
+`fetch` and `axios` calls in JavaScript and TypeScript against them while you edit.
 
 ## Features
 
-### Features
-- **Automatic Contract Discovery**: Finds OpenAPI & GraphQL specs in your project
-- **Real-time Validation**: Get instant feedback as you code (TypeScript/JavaScript)
-- **Inline Warnings**: Red underlines for contract violations
-- **Smart Quick Fixes**: Alt+Enter to fix common issues
-- **Contract Explorer**: Browse all API contracts in a tree view
-- **Breaking Change Detection**: Know when you're breaking contracts
+- **Contract discovery** — indexes YAML/JSON files whose name contains `openapi`, `swagger` or `api` and that declare an
+  `openapi`/`swagger` version. `node_modules`, `build`, `dist`, `target`, `.git`, `.idea`, `.gradle` and `out` are skipped.
+  Contract files are re-indexed when they change; **Tools → Refresh Contracts** re-scans on demand.
+- **Kei Contracts tool window** — every contract with its endpoints, request body fields (required ones marked `*`) and responses.
+- **Call validation** (requires the bundled JavaScript plugin, i.e. IntelliJ IDEA Ultimate, WebStorm, PhpStorm, …):
+  - `fetch(url, { method, body })` and `axios.get/post/put/patch/delete/head/options(url, body)` with a string-literal URL
+  - path templates (`/users/{id}`) match concrete URLs (`/users/42`); host, query string and a base-path prefix are ignored
+  - object-literal bodies (also wrapped in `JSON.stringify`): missing required fields, literal type mismatches, invalid enum values
+  - optional weak warning when a call matches no endpoint (only when the project has at least one contract)
+  - quick fix: add a missing required field with a placeholder value
 
-### 🚀 Supported Technologies
-- **API Specs**: OpenAPI 3.x (Swagger), GraphQL (coming soon)
-- **Languages**: TypeScript, JavaScript (Python, Java, Kotlin coming soon)
-- **HTTP Clients**: fetch(), axios, custom wrappers
+Not supported: GraphQL, URLs built from template literals or variables, request bodies held in variables.
 
-## Getting Started
+## Usage
 
-1. **Install Plugin**
-   - Open IntelliJ IDEA / WebStorm / PyCharm
-   - Go to Settings → Plugins → Marketplace
-   - Search "Kei"
-   - Click Install
+1. Install from **Settings → Plugins → Marketplace** (search for "Kei") or from a release ZIP.
+2. Open a project that contains an OpenAPI/Swagger file — a notification reports how many contracts were found.
+3. Open a `.js`/`.ts` file: contract problems are highlighted; press Alt+Enter on a missing-field problem to fix it.
 
-2. **Open Your Project**
-   - Plugin automatically discovers OpenAPI specs (`openapi.yaml`, `swagger.json`)
-   - Check notification: "Kei: Found X API contracts"
+Try it on [`example-project/`](example-project/).
 
-3. **Start Coding**
-   - Write API calls using fetch() or axios
-   - Get instant feedback on violations
-   - Use Alt+Enter for quick fixes
+## Settings
 
-## Example
+**Settings → Tools → Kei API Contract Testing** (per project)
 
-**OpenAPI Contract** (`openapi.yaml`):
-```yaml
-paths:
-  /api/users:
-    post:
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - name
-                - email
-              properties:
-                name:
-                  type: string
-                email:
-                  type: string
-                  format: email
-```
+| Setting | Default |
+|---------|---------|
+| Validate fetch/axios calls in JavaScript and TypeScript | on |
+| Warn about calls with no matching contract endpoint | on |
+| Re-index contract files when they change | on |
 
-**Code** (TypeScript):
-```typescript
-// ❌ Missing required field 'email'
-fetch('/api/users', {
-  method: 'POST',
-  body: JSON.stringify({ name: 'John' })
-})
+## Building
 
-// ✓ After Alt+Enter quick fix
-fetch('/api/users', {
-  method: 'POST',
-  body: JSON.stringify({ 
-    name: 'John',
-    email: '' // Added by Kei
-  })
-})
-```
-
-## Development
-
-### Build Plugin
 ```bash
-./gradlew build
+./gradlew detekt test buildPlugin
 ```
 
-### Run Plugin in Development IDE
-```bash
-./gradlew runIde
-```
-
-### Run Tests
-```bash
-./gradlew test
-```
-
-## Roadmap
-
-### MVP (v0.1 - Current)
-- [x] OpenAPI 3.x parsing
-- [x] Contract discovery & indexing
-- [x] TypeScript/JavaScript validation (fetch, axios)
-- [x] Quick fixes (add missing fields)
-- [x] Contract Explorer UI
-- [x] Breaking change detection
-
-### v0.2
-- [ ] GraphQL schema support
-- [ ] Python validation (requests, httpx)
-- [ ] Contract diff viewer
-- [ ] Mock server generator
-
-### v0.3
-- [ ] Java/Kotlin validation (RestTemplate, Retrofit)
-- [ ] Pre-commit hooks
-- [ ] Test generation
-- [ ] Dependency graph
-
-### v1.0
-- [ ] Consumer-Driven Contract Testing
-- [ ] Performance optimizations
-- [ ] Advanced quick fixes
-- [ ] Documentation
-
-## Support
-
-- **Issues**: [GitHub Issues](https://github.com/JirakJ/api-contract-guard/issues)
-- **Documentation**: [docs.kei.dev](https://docs.kei.dev)
-- **Email**: support@kei.dev
+Requires JDK 17. The plugin targets IntelliJ Platform 2023.2 (build 232) and newer.
 
 ## License
 
-Apache License 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE). Copyright 2026 Jakub Jirák.
-
----
-
-Made with ❤️ for API developers
-
-## Free & open source
-
-Since version 2026.8.0 the plugin is completely free — every feature is unlocked and no license is needed. The source code is open source under the [Apache License 2.0](LICENSE).
-
-## Contributing
-
-Issues and pull requests are welcome at https://github.com/JirakJ/api-contract-guard.
+Apache License 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE). Free and open source; issues and pull requests are welcome.

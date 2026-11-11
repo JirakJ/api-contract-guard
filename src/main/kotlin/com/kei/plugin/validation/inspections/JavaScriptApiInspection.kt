@@ -1,229 +1,134 @@
 package com.kei.plugin.validation.inspections
 
-import com.intellij.codeInspection.*
-import com.intellij.lang.javascript.psi.*
+import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.lang.javascript.psi.JSArrayLiteralExpression
+import com.intellij.lang.javascript.psi.JSCallExpression
+import com.intellij.lang.javascript.psi.JSElementVisitor
+import com.intellij.lang.javascript.psi.JSExpression
+import com.intellij.lang.javascript.psi.JSLiteralExpression
+import com.intellij.lang.javascript.psi.JSObjectLiteralExpression
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementVisitor
 import com.kei.plugin.core.ContractIndexService
-import com.kei.plugin.models.*
+import com.kei.plugin.models.Endpoint
+import com.kei.plugin.models.Schema
 import com.kei.plugin.quickfixes.AddMissingFieldFix
+import com.kei.plugin.settings.KeiSettings
+import com.kei.plugin.validation.ContractRules
 
+/**
+ * Validates `fetch(url, { method, body })` and `axios.<method>(url, body)` calls in JavaScript/TypeScript
+ * against the endpoints of the indexed OpenAPI contracts.
+ */
 class JavaScriptApiInspection : LocalInspectionTool() {
-    
+
     override fun buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor {
+        val project = holder.project
+        val settings = KeiSettings.getInstance(project).state
+        if (!settings.enableValidation) return PsiElementVisitor.EMPTY_VISITOR
+        val service = ContractIndexService.getInstance(project)
+        if (!service.hasContracts()) return PsiElementVisitor.EMPTY_VISITOR
+
         return object : JSElementVisitor() {
             override fun visitJSCallExpression(node: JSCallExpression) {
                 super.visitJSCallExpression(node)
-                
-                when {
-                    node.isFetchCall() -> validateFetchCall(node, holder)
-                    node.isAxiosCall() -> validateAxiosCall(node, holder)
-                }
-            }
-        }
-    }
-    
-    private fun JSCallExpression.isFetchCall(): Boolean {
-        return methodExpression?.text == "fetch"
-    }
-    
-    private fun JSCallExpression.isAxiosCall(): Boolean {
-        val text = methodExpression?.text ?: return false
-        return text.startsWith("axios.") || text.contains(".axios")
-    }
-    
-    private fun validateFetchCall(node: JSCallExpression, holder: ProblemsHolder) {
-        val args = node.arguments
-        if (args.isEmpty()) return
-        
-        // Extract endpoint: fetch('/api/users', ...)
-        val endpoint = extractStringValue(args[0]) ?: return
-        
-        // Extract method and body from options
-        val options = args.getOrNull(1) as? JSObjectLiteralExpression
-        val method = options?.findProperty("method")?.let { 
-            extractStringValue(it.value)
-        } ?: "GET"
-        
-        // Find matching contract
-        val service = node.project.getService(ContractIndexService::class.java)
-        val contract = service.findContract(method, endpoint)
-        
-        if (contract == null) {
-            holder.registerProblem(
-                args[0],
-                "No contract found for endpoint: $method $endpoint",
-                ProblemHighlightType.WARNING
-            )
-            return
-        }
-        
-        // Validate request body if POST/PUT/PATCH
-        if (method in listOf("POST", "PUT", "PATCH") && contract.requestBody != null) {
-            val body = options?.findProperty("body")?.value
-            if (body != null) {
-                validateRequestBody(body, contract.requestBody, holder)
-            } else if (contract.requestBody.required) {
-                holder.registerProblem(
-                    node,
-                    "Missing required request body",
-                    ProblemHighlightType.ERROR
-                )
-            }
-        }
-    }
-    
-    private fun validateAxiosCall(node: JSCallExpression, holder: ProblemsHolder) {
-        val methodExpr = node.methodExpression?.text ?: return
-        
-        // Extract method: axios.get, axios.post, etc.
-        val method = when {
-            methodExpr.contains(".get") -> "GET"
-            methodExpr.contains(".post") -> "POST"
-            methodExpr.contains(".put") -> "PUT"
-            methodExpr.contains(".delete") -> "DELETE"
-            methodExpr.contains(".patch") -> "PATCH"
-            else -> return
-        }
-        
-        val args = node.arguments
-        if (args.isEmpty()) return
-        
-        val endpoint = extractStringValue(args[0]) ?: return
-        
-        // Find matching contract
-        val service = node.project.getService(ContractIndexService::class.java)
-        val contract = service.findContract(method, endpoint)
-        
-        if (contract == null) {
-            holder.registerProblem(
-                args[0],
-                "No contract found for endpoint: $method $endpoint",
-                ProblemHighlightType.WARNING
-            )
-            return
-        }
-        
-        // For axios.post/put/patch, second argument is the body
-        if (method in listOf("POST", "PUT", "PATCH") && contract.requestBody != null) {
-            val body = args.getOrNull(1)
-            if (body != null) {
-                validateRequestBody(body, contract.requestBody, holder)
-            } else if (contract.requestBody.required) {
-                holder.registerProblem(
-                    node,
-                    "Missing required request body",
-                    ProblemHighlightType.ERROR
-                )
-            }
-        }
-    }
-    
-    private fun validateRequestBody(
-        body: PsiElement,
-        requestBody: RequestBody,
-        holder: ProblemsHolder
-    ) {
-        // Unwrap JSON.stringify if present
-        val actualBody = if (body is JSCallExpression && 
-                             body.methodExpression?.text == "JSON.stringify") {
-            body.arguments.firstOrNull() ?: return
-        } else {
-            body
-        }
-        
-        when (actualBody) {
-            is JSObjectLiteralExpression -> validateObjectLiteral(actualBody, requestBody.schema, holder)
-            is JSReferenceExpression -> {
-                // Variable reference - we could resolve it, but skip for MVP
-            }
-        }
-    }
-    
-    private fun validateObjectLiteral(
-        obj: JSObjectLiteralExpression,
-        schema: Schema,
-        holder: ProblemsHolder
-    ) {
-        val properties = obj.properties.associate { 
-            it.name to it.value 
-        }
-        
-        // Check required fields
-        schema.required?.forEach { requiredField ->
-            if (!properties.containsKey(requiredField)) {
-                holder.registerProblem(
-                    obj,
-                    "Missing required field: '$requiredField'",
-                    ProblemHighlightType.ERROR,
-                    AddMissingFieldFix(requiredField, schema.properties?.get(requiredField)?.type ?: "string")
-                )
-            }
-        }
-        
-        // Check field types
-        properties.forEach { (fieldName, fieldValue) ->
-            val expectedSchema = schema.properties?.get(fieldName)
-            if (expectedSchema != null && fieldValue != null) {
-                val actualType = inferType(fieldValue)
-                if (actualType != null && !isTypeCompatible(actualType, expectedSchema.type)) {
-                    holder.registerProblem(
-                        fieldValue,
-                        "Field '$fieldName' expected type '${expectedSchema.type}', got '$actualType'",
-                        ProblemHighlightType.ERROR
-                    )
-                }
-                
-                // Validate enum values
-                if (expectedSchema.enum != null) {
-                    val value = extractStringValue(fieldValue)
-                    if (value != null && value !in expectedSchema.enum) {
+                val call = describe(node) ?: return
+                val endpoint = service.findContract(call.method, call.url)
+                if (endpoint == null) {
+                    if (settings.warnOnMissingContract) {
                         holder.registerProblem(
-                            fieldValue,
-                            "Invalid enum value. Expected one of: ${expectedSchema.enum.joinToString(", ")}",
-                            ProblemHighlightType.ERROR
+                            call.urlElement,
+                            "No contract endpoint found for ${call.method} ${call.url}",
+                            ProblemHighlightType.WEAK_WARNING,
                         )
                     }
+                    return
                 }
+                validateBody(node, call, endpoint, holder)
             }
         }
     }
-    
-    private fun inferType(value: JSExpression): String? {
-        return when (value) {
-            is JSLiteralExpression -> {
-                when {
-                    value.isQuotedLiteral -> "string"
-                    value.text.toIntOrNull() != null -> "integer"
-                    value.text.toDoubleOrNull() != null -> "number"
-                    value.text in listOf("true", "false") -> "boolean"
-                    value.text == "null" -> "null"
-                    else -> null
-                }
+
+    private class Call(val method: String, val url: String, val urlElement: PsiElement, val body: PsiElement?)
+
+    private fun describe(node: JSCallExpression): Call? {
+        val callee = node.methodExpression?.text ?: return null
+        val args = node.arguments
+        val urlElement = args.firstOrNull() ?: return null
+        val url = stringValue(urlElement) ?: return null
+
+        return if (callee == "fetch") {
+            val options = args.getOrNull(1) as? JSObjectLiteralExpression
+            val method = options?.findProperty("method")?.value?.let(::stringValue)?.uppercase() ?: "GET"
+            Call(method, url, urlElement, options?.findProperty("body")?.value)
+        } else {
+            ContractRules.axiosMethod(callee)?.let { method ->
+                val body = if (ContractRules.methodTakesBody(method)) args.getOrNull(1) else null
+                Call(method, url, urlElement, body)
             }
-            is JSArrayLiteralExpression -> "array"
-            is JSObjectLiteralExpression -> "object"
-            else -> null
         }
     }
-    
-    private fun isTypeCompatible(actualType: String, expectedType: String): Boolean {
-        return when {
-            actualType == expectedType -> true
-            actualType == "integer" && expectedType == "number" -> true
-            actualType == "number" && expectedType == "integer" -> false // Stricter check
-            else -> false
-        }
-    }
-    
-    private fun extractStringValue(element: PsiElement?): String? {
-        return when (element) {
-            is JSLiteralExpression -> {
-                if (element.isQuotedLiteral) {
-                    element.stringValue
-                } else null
+
+    private fun validateBody(node: JSCallExpression, call: Call, endpoint: Endpoint, holder: ProblemsHolder) {
+        val requestBody = endpoint.requestBody ?: return
+        if (!ContractRules.methodTakesBody(call.method)) return
+        if (call.body == null) {
+            if (requestBody.required) {
+                holder.registerProblem(node, "Missing required request body", ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
             }
-            else -> null
+            return
+        }
+        val literal = unwrapJsonStringify(call.body) as? JSObjectLiteralExpression ?: return
+        validateObjectLiteral(literal, requestBody.schema, holder)
+    }
+
+    private fun unwrapJsonStringify(body: PsiElement): PsiElement? =
+        if (body is JSCallExpression && body.methodExpression?.text == "JSON.stringify") body.arguments.firstOrNull() else body
+
+    private fun validateObjectLiteral(obj: JSObjectLiteralExpression, schema: Schema, holder: ProblemsHolder) {
+        val properties = obj.properties.associate { it.name to it.value }
+
+        schema.required.orEmpty().filterNot { properties.containsKey(it) }.forEach { field ->
+            holder.registerProblem(
+                obj,
+                "Missing required field: '$field'",
+                ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
+                AddMissingFieldFix(field, schema.properties?.get(field)?.type),
+            )
+        }
+
+        properties.forEach { (name, value) ->
+            val expected = schema.properties?.get(name) ?: return@forEach
+            if (value == null) return@forEach
+            val actual = inferType(value)
+            if (actual != null && !ContractRules.isTypeCompatible(actual, expected.type)) {
+                holder.registerProblem(
+                    value,
+                    "Field '$name' expected type '${expected.type}', got '$actual'",
+                    ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
+                )
+            }
+            val allowed = expected.enum
+            val literal = stringValue(value)
+            if (allowed != null && literal != null && literal !in allowed) {
+                holder.registerProblem(
+                    value,
+                    "Invalid enum value '$literal'. Expected one of: ${allowed.joinToString(", ")}",
+                    ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
+                )
+            }
         }
     }
+
+    private fun inferType(value: JSExpression): String? = when (value) {
+        is JSLiteralExpression -> ContractRules.literalType(value.text, value.isQuotedLiteral)
+        is JSArrayLiteralExpression -> "array"
+        is JSObjectLiteralExpression -> "object"
+        else -> null
+    }
+
+    private fun stringValue(element: PsiElement?): String? =
+        (element as? JSLiteralExpression)?.takeIf { it.isQuotedLiteral }?.stringValue
 }
