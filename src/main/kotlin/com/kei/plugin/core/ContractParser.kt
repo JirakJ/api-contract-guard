@@ -1,97 +1,98 @@
 package com.kei.plugin.core
 
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VfsUtil
-import com.kei.plugin.models.*
-import io.swagger.v3.parser.OpenAPIV3Parser
-import io.swagger.v3.oas.models.PathItem
+import com.intellij.openapi.diagnostic.Logger
+import com.kei.plugin.models.ApiContract
+import com.kei.plugin.models.ContractType
+import com.kei.plugin.models.Endpoint
+import com.kei.plugin.models.HttpMethod
+import com.kei.plugin.models.Parameter
+import com.kei.plugin.models.ParameterLocation
+import com.kei.plugin.models.RequestBody
+import com.kei.plugin.models.Response
+import com.kei.plugin.models.Schema
+import io.swagger.parser.OpenAPIParser
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.parser.core.models.ParseOptions
+import io.swagger.v3.oas.models.media.Schema as OasSchema
 import io.swagger.v3.oas.models.parameters.Parameter as OasParameter
+import io.swagger.v3.oas.models.parameters.RequestBody as OasRequestBody
+import io.swagger.v3.oas.models.responses.ApiResponse as OasResponse
 
+/**
+ * Parses OpenAPI 3.x and Swagger 2.0 documents (YAML or JSON) into the plugin's contract model.
+ * Pure: works on text, never touches the network ($ref to remote URLs is not resolved).
+ */
 class ContractParser {
-    
-    fun parse(file: VirtualFile): ApiContract? {
-        return try {
-            when {
-                isOpenApiFile(file) -> parseOpenApi(file)
-                isGraphQLFile(file) -> parseGraphQL(file)
-                else -> null
-            }
-        } catch (e: Exception) {
-            // Log error and return null
-            null
-        }
-    }
-    
-    private fun isOpenApiFile(file: VirtualFile): Boolean {
-        val name = file.name.lowercase()
-        return (name.contains("openapi") || name.contains("swagger")) && 
-               (name.endsWith(".yaml") || name.endsWith(".yml") || name.endsWith(".json"))
-    }
-    
-    private fun isGraphQLFile(file: VirtualFile): Boolean {
-        return file.name.endsWith(".graphql") || file.name.endsWith(".gql")
-    }
-    
-    private fun parseOpenApi(file: VirtualFile): ApiContract {
-        val content = VfsUtil.loadText(file)
-        val parseResult = OpenAPIV3Parser().readContents(content, null, null)
-        val openAPI = parseResult.openAPI 
-            ?: throw IllegalStateException("Failed to parse OpenAPI: ${parseResult.messages}")
-        
-        val endpoints = openAPI.paths?.flatMap { (path, pathItem) ->
-            pathItem.readOperationsMap().mapNotNull { (method, operation) ->
-                try {
-                    Endpoint(
-                        path = path,
-                        method = HttpMethod.valueOf(method.name.uppercase()),
-                        operationId = operation.operationId,
-                        summary = operation.summary,
-                        description = operation.description,
-                        requestBody = operation.requestBody?.let { parseRequestBody(it) },
-                        responses = operation.responses?.mapNotNull { (code, response) ->
-                            parseResponse(code, response)
-                        } ?: emptyList(),
-                        parameters = operation.parameters?.mapNotNull { parseParameter(it) } ?: emptyList()
-                    )
-                } catch (e: Exception) {
-                    null // Skip invalid endpoints
-                }
-            }
-        } ?: emptyList()
-        
+
+    /**
+     * Returns the parsed contract, or null when the content is not a usable OpenAPI/Swagger document.
+     */
+    fun parse(filePath: String, content: String): ApiContract? {
+        if (!ContractFiles.looksLikeOpenApi(content)) return null
+        val openApi = readOpenApi(content) ?: return null
+
         return ApiContract(
             type = ContractType.OPENAPI,
-            file = file,
-            endpoints = endpoints,
-            version = openAPI.info?.version,
-            title = openAPI.info?.title
+            filePath = filePath,
+            endpoints = endpoints(openApi),
+            version = openApi.info?.version,
+            title = openApi.info?.title,
         )
     }
-    
-    private fun parseRequestBody(requestBody: io.swagger.v3.oas.models.parameters.RequestBody): RequestBody? {
+
+    // The third-party parser may throw arbitrary runtime exceptions on malformed input.
+    private fun readOpenApi(content: String): OpenAPI? = try {
+        val options = ParseOptions().apply {
+            isResolve = false
+            isResolveFully = false
+        }
+        OpenAPIParser().readContents(content, null, options)?.openAPI
+    } catch (e: RuntimeException) {
+        LOG.debug("Not a parseable OpenAPI document", e)
+        null
+    }
+
+    private fun endpoints(openApi: OpenAPI): List<Endpoint> =
+        openApi.paths.orEmpty().flatMap { (path, pathItem) ->
+            pathItem.readOperationsMap().orEmpty().map { (method, operation) ->
+                val pathParameters = pathItem.parameters.orEmpty()
+                Endpoint(
+                    path = path,
+                    method = HttpMethod.valueOf(method.name.uppercase()),
+                    operationId = operation.operationId,
+                    summary = operation.summary,
+                    description = operation.description,
+                    requestBody = operation.requestBody?.let { parseRequestBody(it, openApi) },
+                    responses = operation.responses.orEmpty().mapNotNull { (code, response) ->
+                        parseResponse(code, response, openApi)
+                    },
+                    parameters = (pathParameters + operation.parameters.orEmpty()).mapNotNull { parseParameter(it, openApi) },
+                )
+            }
+        }
+
+    private fun parseRequestBody(requestBody: OasRequestBody, openApi: OpenAPI): RequestBody? {
         val content = requestBody.content?.entries?.firstOrNull() ?: return null
         val schema = content.value.schema ?: return null
-        
         return RequestBody(
             required = requestBody.required ?: false,
             contentType = content.key,
-            schema = parseSchema(schema)
+            schema = parseSchema(schema, openApi, 0),
         )
     }
-    
-    private fun parseResponse(code: String, response: io.swagger.v3.oas.models.responses.ApiResponse): Response? {
+
+    private fun parseResponse(code: String, response: OasResponse, openApi: OpenAPI): Response? {
         val statusCode = code.toIntOrNull() ?: return null
         val content = response.content?.entries?.firstOrNull()
-        
         return Response(
             statusCode = statusCode,
             description = response.description,
             contentType = content?.key ?: "application/json",
-            schema = content?.value?.schema?.let { parseSchema(it) }
+            schema = content?.value?.schema?.let { parseSchema(it, openApi, 0) },
         )
     }
-    
-    private fun parseParameter(param: OasParameter): Parameter? {
+
+    private fun parseParameter(param: OasParameter, openApi: OpenAPI): Parameter? {
         val location = when (param.`in`) {
             "path" -> ParameterLocation.PATH
             "query" -> ParameterLocation.QUERY
@@ -99,45 +100,44 @@ class ContractParser {
             "cookie" -> ParameterLocation.COOKIE
             else -> return null
         }
-        
         val schema = param.schema ?: return null
-        
         return Parameter(
             name = param.name,
             location = location,
             required = param.required ?: false,
-            schema = parseSchema(schema),
-            description = param.description
+            schema = parseSchema(schema, openApi, 0),
+            description = param.description,
         )
     }
-    
-    private fun parseSchema(schema: io.swagger.v3.oas.models.media.Schema<*>): Schema {
+
+    /** Converts a schema, following local `#/components/schemas/X` references (cycle-safe via depth limit). */
+    private fun parseSchema(raw: OasSchema<*>, openApi: OpenAPI, depth: Int): Schema {
+        val schema = resolveRef(raw, openApi)
+        val recurse = depth < MAX_SCHEMA_DEPTH
         return Schema(
             type = schema.type ?: "object",
             format = schema.format,
-            properties = schema.properties?.mapValues { (_, propSchema) ->
-                parseSchema(propSchema)
-            },
+            properties = if (recurse) schema.properties?.mapValues { (_, p) -> parseSchema(p, openApi, depth + 1) } else null,
             required = schema.required,
-            items = schema.items?.let { parseSchema(it) },
+            items = if (recurse) schema.items?.let { parseSchema(it, openApi, depth + 1) } else null,
             enum = schema.enum?.map { it.toString() },
             pattern = schema.pattern,
             minLength = schema.minLength,
             maxLength = schema.maxLength,
             minimum = schema.minimum,
             maximum = schema.maximum,
-            description = schema.description
+            description = schema.description,
         )
     }
-    
-    private fun parseGraphQL(file: VirtualFile): ApiContract {
-        // TODO v0.2: GraphQL parsing - GraphQL Java API needs proper integration
-        // For now, return empty contract structure
-        return ApiContract(
-            type = ContractType.GRAPHQL,
-            file = file,
-            endpoints = emptyList(),
-            title = file.nameWithoutExtension
-        )
+
+    private fun resolveRef(schema: OasSchema<*>, openApi: OpenAPI): OasSchema<*> {
+        val ref = schema.`$ref` ?: return schema
+        val name = ref.substringAfterLast('/')
+        return openApi.components?.schemas?.get(name) ?: schema
+    }
+
+    companion object {
+        private val LOG = Logger.getInstance(ContractParser::class.java)
+        private const val MAX_SCHEMA_DEPTH = 8
     }
 }

@@ -1,19 +1,18 @@
 package com.kei.plugin.models
 
-import com.intellij.openapi.vfs.VirtualFile
-
+/** A parsed OpenAPI (Swagger 2.0 or OpenAPI 3.x) contract file. */
 data class ApiContract(
     val type: ContractType,
-    val file: VirtualFile,
+    val filePath: String,
     val endpoints: List<Endpoint>,
     val version: String? = null,
     val title: String? = null
-)
+) {
+    val fileName: String get() = filePath.substringAfterLast('/')
+}
 
 enum class ContractType {
-    OPENAPI,
-    GRAPHQL,
-    CODE_ANNOTATION
+    OPENAPI
 }
 
 data class Endpoint(

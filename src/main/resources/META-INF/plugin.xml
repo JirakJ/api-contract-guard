@@ -1,125 +1,82 @@
 <idea-plugin>
     <id>com.jakubjirak.plugin</id>
     <name>Kei - API Contract Testing</name>
-    <vendor email="support@kei.dev" url="https://github.com/JirakJ/api-contract-guard">Kei</vendor>
+    <vendor email="support@jakubjirak.com" url="https://github.com/JirakJ/api-contract-guard">Jakub Jirák</vendor>
 
-    
-    <description><![CDATA[<h2>Real-Time API Contract Testing in Your IDE</h2>
-
+    <description><![CDATA[<h2>API contract checks for JavaScript and TypeScript calls</h2>
 <p>
-  Kei validates your API calls against OpenAPI and GraphQL contracts as you type.
-  Breaking changes show up as inline warnings — not as production incidents.
-  Works with TypeScript, JavaScript, Python, Java, and Kotlin.
+  Kei finds the OpenAPI 3.x and Swagger 2.0 contracts in your project and checks <code>fetch</code> and
+  <code>axios</code> calls in JavaScript/TypeScript against them while you edit.
 </p>
-
-<h3>Contract Discovery</h3>
+<h3>Contract discovery</h3>
 <ul>
-  <li>Automatic detection of OpenAPI (v2/v3) and GraphQL schemas</li>
-  <li>Supports local files, remote URLs, and schema registries</li>
-  <li>Contract Explorer panel with a tree view of all endpoints and types</li>
+  <li>Indexes YAML/JSON files whose name contains <code>openapi</code>, <code>swagger</code> or <code>api</code> and that declare an OpenAPI/Swagger version
+      (<code>node_modules</code>, <code>build</code>, <code>dist</code>, <code>target</code> and similar folders are skipped)</li>
+  <li>Re-indexes contract files when they change; <b>Tools → Refresh Contracts</b> re-scans on demand</li>
+  <li><b>Kei Contracts</b> tool window: endpoints, request body fields (required fields marked with *) and responses</li>
 </ul>
-
-<h3>Real-Time Validation</h3>
+<h3>Call validation (JavaScript/TypeScript, needs the bundled JavaScript plugin)</h3>
 <ul>
-  <li>Validates every API call against its contract in under 50ms</li>
-  <li>Inline red underlines for contract violations — just like compiler errors</li>
-  <li>Breaking change detection with severity levels (critical, warning, info)</li>
-  <li>Side-by-side contract diff viewer for comparing schema versions</li>
+  <li><code>fetch(url, { method, body })</code> and <code>axios.get/post/put/patch/delete(url, body)</code> with a string-literal URL</li>
+  <li>Path templates such as <code>/users/{id}</code> match concrete URLs such as <code>/users/42</code>; host, query string and a base-path prefix are ignored</li>
+  <li>Object-literal request bodies (also inside <code>JSON.stringify</code>): missing required fields, literal type mismatches and invalid enum values</li>
+  <li>Optional weak warning for calls with no matching contract endpoint</li>
+  <li>Quick fix (Alt+Enter): add a missing required field with a placeholder value</li>
 </ul>
+<p>Settings: <b>Settings → Tools → Kei API Contract Testing</b>. Free and open source (Apache-2.0).</p>
+]]></description>
 
-<h3>Quick Fixes and Refactoring</h3>
+    <change-notes><![CDATA[
+<h3>2026.8.0</h3>
 <ul>
-  <li>Press Alt+Enter on any violation for smart fix suggestions</li>
-  <li>Auto-rename fields, update types, and add missing parameters</li>
-  <li>One-click mock server generation from any contract</li>
+  <li>The plugin is now completely free — all features unlocked, no license needed.</li>
+  <li>Source code is now open source under Apache-2.0: https://github.com/JirakJ/api-contract-guard</li>
 </ul>
-
+<h3>2026.3.15</h3>
 <ul>
-  <li>Analytics dashboard — track contract health and violation trends</li>
-  <li>Version management — pin, compare, and roll back contract versions</li>
-  <li>Advanced mocking — custom rules, delays, and error simulation</li>
-  <li>Test generation — auto-generate contract tests from schemas</li>
+  <li>Quick fixes now create PSI via the public PsiFileFactory API instead of internal JavaScript plugin classes</li>
 </ul>
-
+<h3>2025.11.1</h3>
 <ul>
-  <li>Security analyzer for API contract patterns</li>
-  <li>AI-powered contract suggestions and improvements</li>
-  <li>Team collaboration with shared registries and review workflows</li>
-  <li>CI/CD integration for pipeline-level contract validation</li>
+  <li>Initial release: OpenAPI contract discovery, contract explorer and fetch/axios validation with quick fixes</li>
 </ul>
-
-<h3>Requirements</h3>
-<ul>
-  <li>JDK 17 or later</li>
-  <li>IntelliJ IDEA 2023.1+ (or compatible JetBrains IDE)</li>
-</ul>
-
-<h3>Support</h3>
-<ul>
-  <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Documentation</a></li>
-  <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Issue Tracker (GitHub)</a></li>
-  <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Community Forum</a></li>
-  <li><a href="https://github.com/JirakJ/api-contract-guard/issues">Email Support</a></li>
-</ul>]]></description>
+]]></change-notes>
 
     <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.modules.lang</depends>
     <depends optional="true" config-file="kei-javascript.xml">JavaScript</depends>
-    <depends optional="true" config-file="kei-python.xml">Pythonid</depends>
-    <depends optional="true" config-file="kei-java.xml">com.intellij.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Contract Index -->
         <projectService serviceImplementation="com.kei.plugin.core.ContractIndexService"/>
-        
-        <!-- File Type Patterns for Contract Discovery -->
-        <fileType.fileViewProviderFactory 
-            filetype="YAML" 
-            implementationClass="com.intellij.psi.SingleRootFileViewProviderFactory"/>
-        
-        <!-- Tool Window -->
-        <toolWindow 
-            id="Kei Contracts" 
-            anchor="right" 
+        <projectService serviceImplementation="com.kei.plugin.settings.KeiSettings"/>
+
+        <toolWindow
+            id="Kei Contracts"
+            anchor="right"
             icon="/icons/kei.svg"
             factoryClass="com.kei.plugin.ui.ContractExplorerWindowFactory"/>
-        
-        <!-- Project Startup Activity -->
+
         <postStartupActivity implementation="com.kei.plugin.core.ContractDiscoveryStartup"/>
-        
-        <!-- Inspections -->
-        <localInspection 
-            language="JavaScript"
-            displayName="API Contract Validation"
-            groupName="Kei"
-            enabledByDefault="true"
-            level="ERROR"
-            implementationClass="com.kei.plugin.validation.inspections.JavaScriptApiInspection"/>
-        
-        <!-- Settings -->
-        <projectConfigurable 
+
+        <projectConfigurable
             parentId="tools"
             instance="com.kei.plugin.ui.settings.KeiSettingsConfigurable"
             id="com.kei.plugin.settings"
-            displayName="Kei API Contract Testing"/>
-        
-        <!-- Notifications -->
-        <notificationGroup 
-            id="Kei Notifications" 
-            displayType="BALLOON"/>
-    
+            displayName="Kei API Contract Testing"
+            nonDefaultProject="true"/>
+
+        <notificationGroup id="Kei Notifications" displayType="BALLOON"/>
         <notificationGroup id="Kei - API Contract Testing Feedback" displayType="BALLOON"/>
-        <projectActivity implementation="com.kei.plugin.feedback.FeedbackNotifier"/>
+        <postStartupActivity implementation="com.kei.plugin.feedback.FeedbackNotifier"/>
     </extensions>
 
     <actions>
-        <action 
+        <action
             id="Kei.RefreshContracts"
             class="com.kei.plugin.ui.actions.RefreshContractsAction"
             text="Refresh Contracts"
-            description="Refresh API contract index"
+            description="Re-scan the project for OpenAPI/Swagger contracts"
             icon="AllIcons.Actions.Refresh">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
     </actions>
-
 </idea-plugin>
