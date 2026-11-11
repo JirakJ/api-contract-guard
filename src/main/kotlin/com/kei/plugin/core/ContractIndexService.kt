@@ -1,140 +1,111 @@
 package com.kei.plugin.core
 
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.guessProjectDir
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
-import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileCreateEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileDeleteEvent
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import com.kei.plugin.models.ApiContract
 import com.kei.plugin.models.Endpoint
-import com.kei.plugin.models.HttpMethod
-import java.util.concurrent.ConcurrentHashMap
+import com.kei.plugin.settings.KeiSettings
+import java.io.IOException
 
+/**
+ * Project-level index of the OpenAPI/Swagger contracts found under the project directory.
+ */
 @Service(Service.Level.PROJECT)
-class ContractIndexService(private val project: Project) {
-    
-    private val contractCache = ConcurrentHashMap<VirtualFile, ApiContract>()
-    private val endpointIndex = ConcurrentHashMap<String, MutableList<Endpoint>>()
+class ContractIndexService(private val project: Project) : Disposable {
+
+    private val index = EndpointIndex()
     private val parser = ContractParser()
-    
+
     init {
-        // Listen for file changes
-        project.messageBus.connect().subscribe(
+        project.messageBus.connect(this).subscribe(
             VirtualFileManager.VFS_CHANGES,
             object : BulkFileListener {
                 override fun after(events: MutableList<out VFileEvent>) {
-                    events.forEach { event ->
-                        when (event) {
-                            is VFileContentChangeEvent -> onFileChanged(event.file)
-                            is VFileCreateEvent -> event.file?.let { onFileCreated(it) }
-                            is VFileDeleteEvent -> onFileDeleted(event.file)
-                        }
+                    if (!KeiSettings.getInstance(project).state.autoRefreshContracts) return
+                    events.forEach(::onEvent)
+                }
+            },
+        )
+    }
+
+    /** Re-scans the whole project directory. Must be called inside a read action or from a background thread. */
+    fun indexProject() {
+        index.clear()
+        val baseDir = project.guessProjectDir() ?: return
+        collectContractFiles(baseDir).forEach(::indexFile)
+        LOG.info("Indexed ${index.all().size} API contract(s)")
+    }
+
+    fun indexFile(file: VirtualFile) {
+        val content = try {
+            VfsUtilCore.loadText(file)
+        } catch (e: IOException) {
+            LOG.warn("Cannot read contract ${file.path}", e)
+            return
+        }
+        val contract = parser.parse(file.path, content)
+        if (contract == null) index.remove(file.path) else index.put(contract)
+    }
+
+    fun findContract(method: String, path: String): Endpoint? = index.find(method, path)
+
+    fun getAllContracts(): List<ApiContract> = index.all()
+
+    fun hasContracts(): Boolean = !index.isEmpty()
+
+    private fun collectContractFiles(dir: VirtualFile): List<VirtualFile> {
+        val result = mutableListOf<VirtualFile>()
+        VfsUtilCore.iterateChildrenRecursively(
+            dir,
+            { !(it.isDirectory && ContractFiles.isIgnoredDirectory(it.name)) },
+            { file ->
+                if (!file.isDirectory && ContractFiles.isCandidate(file.name)) result.add(file)
+                true
+            },
+        )
+        return result
+    }
+
+    private fun onEvent(event: VFileEvent) {
+        if (!isInProject(event.path)) return
+        when (event) {
+            is VFileDeleteEvent -> index.removeUnder(event.path)
+            is VFileContentChangeEvent, is VFileCreateEvent -> {
+                val file = event.file ?: return
+                if (!file.isDirectory && ContractFiles.isCandidate(file.name)) {
+                    // VFS events arrive on the EDT under a write action: parse off the UI thread.
+                    ApplicationManager.getApplication().executeOnPooledThread {
+                        ReadAction.run<RuntimeException> { if (file.isValid) indexFile(file) }
                     }
                 }
             }
-        )
-    }
-    
-    fun indexProject() {
-        contractCache.clear()
-        endpointIndex.clear()
-        
-        // Find all contract files in project
-        val contractFiles = findContractFiles()
-        contractFiles.forEach { file ->
-            indexFile(file)
+            else -> Unit
         }
     }
-    
-    fun indexFile(file: VirtualFile) {
-        val contract = parser.parse(file) ?: return
-        contractCache[file] = contract
-        
-        // Build endpoint index for fast lookup
-        contract.endpoints.forEach { endpoint ->
-            val key = buildEndpointKey(endpoint.method, endpoint.path)
-            endpointIndex.getOrPut(key) { mutableListOf() }.add(endpoint)
-        }
+
+    private fun isInProject(path: String): Boolean {
+        val base = project.basePath ?: return false
+        return path == base || path.startsWith("$base/")
     }
-    
-    fun findContract(method: String, path: String): Endpoint? {
-        val httpMethod = try {
-            HttpMethod.valueOf(method.uppercase())
-        } catch (e: Exception) {
-            return null
-        }
-        
-        val key = buildEndpointKey(httpMethod, path)
-        val endpoints = endpointIndex[key]
-        return endpoints?.firstOrNull()
-    }
-    
-    fun getAllContracts(): List<ApiContract> {
-        return contractCache.values.toList()
-    }
-    
-    fun getContract(file: VirtualFile): ApiContract? {
-        return contractCache[file]
-    }
-    
-    private fun findContractFiles(): List<VirtualFile> {
-        val files = mutableListOf<VirtualFile>()
-        val baseDir = project.baseDir ?: return files
-        
-        scanDirectory(baseDir, files)
-        return files
-    }
-    
-    private fun scanDirectory(dir: VirtualFile, results: MutableList<VirtualFile>) {
-        if (!dir.isDirectory) return
-        
-        // Skip common directories
-        if (dir.name in setOf("node_modules", ".git", "build", "dist", "target", ".idea")) {
-            return
-        }
-        
-        dir.children.forEach { file ->
-            if (file.isDirectory) {
-                scanDirectory(file, results)
-            } else if (isContractFile(file)) {
-                results.add(file)
-            }
-        }
-    }
-    
-    private fun isContractFile(file: VirtualFile): Boolean {
-        val name = file.name.lowercase()
-        return (name.contains("openapi") || name.contains("swagger") || name.contains("api")) &&
-               (name.endsWith(".yaml") || name.endsWith(".yml") || name.endsWith(".json"))
-    }
-    
-    private fun buildEndpointKey(method: HttpMethod, path: String): String {
-        // Normalize path: /api/users/{id} -> /api/users/*
-        val normalizedPath = path.replace(Regex("\\{[^}]+\\}"), "*")
-        return "${method.name}:$normalizedPath"
-    }
-    
-    private fun onFileChanged(file: VirtualFile) {
-        if (isContractFile(file)) {
-            // Re-index changed contract file
-            contractCache.remove(file)
-            indexFile(file)
-        }
-    }
-    
-    private fun onFileCreated(file: VirtualFile) {
-        if (isContractFile(file)) {
-            indexFile(file)
-        }
-    }
-    
-    private fun onFileDeleted(file: VirtualFile) {
-        contractCache.remove(file)
-        // Remove endpoints from index
-        // TODO: Clean up endpoint index
+
+    override fun dispose() = index.clear()
+
+    companion object {
+        private val LOG = Logger.getInstance(ContractIndexService::class.java)
+
+        fun getInstance(project: Project): ContractIndexService = project.getService(ContractIndexService::class.java)
     }
 }

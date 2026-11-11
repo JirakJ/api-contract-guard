@@ -33,7 +33,7 @@ This is an example project to test the Kei API Contract Testing plugin.
 
 1. Open Tool Window: View → Tool Windows → Kei Contracts
 2. You should see:
-   - openapi.yaml (OPENAPI)
+   - openapi.yaml — <API title>
      - GET /api/users
      - POST /api/users
      - GET /api/users/{id}
@@ -44,4 +44,7 @@ This is an example project to test the Kei API Contract Testing plugin.
 
 Settings → Tools → Kei API Contract Testing
 - Enable/disable validation
-- Configure contract discovery patterns
+- Warn about calls with no matching contract endpoint
+- Re-index contract files automatically when they change
+
+Note: URLs built with template literals (`` `/api/users/${id}` ``) are not checked; only string-literal URLs are.
